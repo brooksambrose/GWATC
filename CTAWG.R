@@ -35,6 +35,7 @@ in.dir=stop('in.dir: You need to specify a path to a file folder containing the 
 ,out.dir=stop('out.dir: You need to specify a path to a file folder where you want your output files to be stored once text processing is completed. For example out.dir=\'MyDocuments/ProjectFiles/Output\'.')
 ,k=stop('k: Specify the number of topics you want LDA to model.')
 ,alpha=stop('alpha: The alpha parameter must be greater than 0. Alpha < 1 assumes that each document is constructed from relatively few topics. Alpha > 1 assumes that each is constructed from many topics.\nIf you aren\'t sure choose the convention: 50/k.') 
+,sample.docs=NULL # put a number here if you want to take a random subset of your docs
 )
 {
 # Check package requirements and arguments
@@ -45,7 +46,9 @@ require(stm)
 ### 1. Preprocessing functions in base R ###
 
 docs<-list() # container for docs
-for(i in list.files(in.dir,full.names=T)) docs[[i]]<-readLines(i,warn=F)
+files<-list.files(in.dir,full.names=T)
+if(!is.null(sample.docs)) files<-sample(files,sample.docs)
+for(i in files) docs[[i]]<-readLines(i,warn=F)
 docs<-lapply(docs,FUN=paste,collapse=' ') # each doc is one long character string
 docs<-lapply(docs,FUN=tolower) # transform to lower case
 docs<-lapply(docs,FUN=removePunctuation) # ...
@@ -64,7 +67,7 @@ stm.docs<-lapply(docs,FUN=function(x) {
 	x<-matrix(rbind(1:length(vocab),table(x)),nrow=2)
 	x # this is functionally a document term matrix if you were to run do.call(rbind,x). It includes the zero values, but behavior for this is not described in stm.
 })
-pre2stm<-stm(documents=stm.docs,vocab=vocab,K=k)
+pre2stm<-stm(documents=stm.docs,vocab=vocab,K=k,control=list(alpha=alpha))
 pre2stm$theta
 }
 
