@@ -6,7 +6,7 @@ Would.you.like.to.lineprof="yup"
 if(grepl("[Yy]",Would.you.like.to.lineprof)){
 	require(lineprof) # optional: a Hadley Wickam tool for line by line visualization of a function's memory and running time
 	source("CTAWG.R")
-	sh<-lineprof(findings<-fulltext2lda(in.dir="in",out.dir="out"))
+	sh<-lineprof(findings<-fulltext2lda(in.dir="./brooks-in",out.dir="./brooks-out",k=5,alpha=k/50))
 	shine(sh)
 }
 

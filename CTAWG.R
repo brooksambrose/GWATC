@@ -40,30 +40,32 @@ in.dir=stop('in.dir: You need to specify a path to a file folder containing the 
 # Check package requirements and arguments
 require(tm)
 require(SnowballC)
+require(stm)
 
 ### 1. Preprocessing functions in base R ###
 
 docs<-list() # container for docs
-for(i in list.files(in.dir)) docs[[i]]<-readLines(i,warn=F)
-
+for(i in list.files(in.dir,full.names=T)) docs[[i]]<-readLines(i,warn=F)
 docs<-lapply(docs,FUN=paste,collapse=' ') # each doc is one long character string
-docs<-sapply(docs,FUN=strsplit,split='[:space:]+') # split docs into words
 docs<-lapply(docs,FUN=tolower) # transform to lower case
 docs<-lapply(docs,FUN=removePunctuation) # ...
 docs<-lapply(docs,FUN=removeNumbers)
+docs<-sapply(docs,FUN=strsplit,split='\\s+') # split docs into words "\\s+" is a regex. "[[:space:]]+" also works but is R specific
 docs<-lapply(docs,FUN=removeWords,stopwords('english'))
+docs<-lapply(docs,FUN=function(x) x[!!nchar(x)]) #remove blanks
 docs<-lapply(docs,FUN=stemDocument,language='english')
-## here we end with a list of untabulated character vectors in original document order. It is possible to go in the 'bag of words' direction, to create ngrams, or to do grammatical parsing...maybe (is stemming a problem here?)
 
+## here we end with a list of untabulated character vectors in original document order. It is possible to go in the 'bag of words' direction, to create ngrams, or to do grammatical parsing...maybe (is stemming a problem here?)
 
 ### 2. LDA wrapper (stm package)
 vocab<-sort(unique(unlist(docs))) # stm expects as input a list of matrices where each element of the list is a document and where the first row of each matrix is the index of a word and the second row is the count of the word
-docs<-lapply(docs,FUN=function(x) {
+stm.docs<-lapply(docs,FUN=function(x) {
 	x<-factor(x,levels=vocab)
-	x<-rbind(1:length(vocab),table(x))
+	x<-matrix(rbind(1:length(vocab),table(x)),nrow=2)
 	x # this is functionally a document term matrix if you were to run do.call(rbind,x). It includes the zero values, but behavior for this is not described in stm.
 })
-pre2stm<-stm()
+pre2stm<-stm(documents=stm.docs,vocab=vocab,K=k)
+pre2stm$theta
 }
 
 
