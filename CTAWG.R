@@ -1,26 +1,37 @@
 #################
 #################
-#What we are doing:
+# What we are doing:
 ## 1. Preprocessing functions in base R
 ## 2. LDA wrapper
 ## 3. Dictionary functions using base R
 ## 4. Machine Learning wrapper (with Juan)
 #
 #################
-#Assumptions:
+# Assumptions:
 ## English stopwords
 ##
 ##
 #################
-#Authors: Berkeley D-Lab Computational Text Analysis Working Group (CTAWG)
-#Date: 3/11/2015
-#Updated: 3/11/2015 by Nick and Brooks
+# Authors: Berkeley D-Lab Computational Text Analysis Working Group (CTAWG)
+# Date Created: 3/11/2015
+# Last Updated: 3/17/2015 by Brooks
 #
+#################
+# Collaboration Guidelines:
+#
+## CollabEdit: http://collabedit.com/w7m72
+##
+### The CollabEdit page for this source file is a space for live coding with a group. What you see here will update on others' screens. View the version history here: http://collabedit.com/w7m72/history. Please make sure work done in CollabEdit contributes to the Git repo by copying it to your fork and submitting it as a pull request.
+#
+## GitHub: https://github.com/brooksambrose/CTAWG
+##
+### Feel free to contribute callone (collaborate alone) to the git repo for this project by issuing pull requests! Also available in the repo is a script (dadorunrun.R) that shows how to load a function as a source file.
+##
 #################
 
 
 fulltext2lda<-function(
-in.dir=stop('in.dir: You need to specify a path to a file folder containing the text files (i.e. documents) that comprise your corpus. For example in.dir=\'MyDocuments/ProjectFiles/TextDocuments\'.')
+in.dir=stop('in.dir: You need to specify a path to a file folder containing the text files (i.e. documents) that comprise your corpus. For example:\nin.dir=\'MyDocuments/ProjectFiles/TextDocuments\'.')
 ,out.dir=stop('out.dir: You need to specify a path to a file folder where you want your output files to be stored once text processing is completed. For example out.dir=\'MyDocuments/ProjectFiles/Output\'.')
 ,k=stop('k: Specify the number of topics you want LDA to model.')
 ,alpha=50/k
