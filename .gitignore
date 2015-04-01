@@ -1,3 +1,5 @@
+.DS_Store
+.Rapp.history
 cache
 cache-downloads
 inspector

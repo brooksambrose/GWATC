@@ -67,8 +67,12 @@ stm.docs<-lapply(docs,FUN=function(x) {
 	x<-matrix(rbind(1:length(vocab),table(x)),nrow=2)
 	x # this is functionally a document term matrix if you were to run do.call(rbind,x). It includes the zero values, but behavior for this is not described in stm.
 })
-pre2stm<-stm(documents=stm.docs,vocab=vocab,K=k,control=list(alpha=alpha))
-pre2stm$theta
+pre2stm<-list()
+pre2stm[["model"]]<-stm(documents=stm.docs,vocab=vocab,K=k,control=list(alpha=alpha))
+#pre2stm[["doc.top"]]<-pre2stm$model$theta
+#pre2stm[["wor.top"]]<-pre2stm$model$theta
+save(pre2stm,file=sub(paste(rep(.Platform$file.sep,2),collapse=""),.Platform$file.sep,paste(out.dir,paste("stm-model-k",k,"-alpha",round(alpha,3),".RData",sep=""),sep=.Platform$file.sep)))
+pre2stm
 }
 
 

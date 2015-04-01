@@ -1,0 +1,1 @@
+ComDisDome is an indexing and abstracting tool covering the communications disorders literature, with focus on speech-language pathology and audiology.
