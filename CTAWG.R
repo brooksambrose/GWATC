@@ -19,9 +19,11 @@
 #################
 # Collaboration Guidelines:
 #
-## CollabEdit: http://collabedit.com/w7m72
+## CollabEdit:
+###### Source: http://collabedit.com/w7m72
+###### Run:    http://collabedit.com/ga4nw
 ##
-### The CollabEdit page for this source file is a space for live coding with a group. What you see here will update on others' screens. View the version history here: http://collabedit.com/w7m72/history. Please make sure work done in CollabEdit contributes to the Git repo by copying it to your fork and submitting it as a pull request.
+### The CollabEdit page for this source file is a space for live coding with a group. What you see here will update on others' screens. View the version history here: http://collabedit.com/w7m72/history. Please make sure work done in CollabEdit contributes to the Git repo by copying it to your fork and submitting it as a pull request. The Run page provides an example script to run the function with arguments using a file structure like the one in the Git repository.
 #
 ## GitHub: https://github.com/brooksambrose/CTAWG
 ##
@@ -34,7 +36,7 @@ fulltext2lda<-function(
 in.dir=stop('in.dir: You need to specify a path to a file folder containing the text files (i.e. documents) that comprise your corpus. For example:\nin.dir=\'MyDocuments/ProjectFiles/TextDocuments\'.')
 ,out.dir=stop('out.dir: You need to specify a path to a file folder where you want your output files to be stored once text processing is completed. For example out.dir=\'MyDocuments/ProjectFiles/Output\'.')
 ,k=stop('k: Specify the number of topics you want LDA to model.')
-,alpha=stop('alpha: The alpha parameter must be greater than 0. Alpha < 1 assumes that each document is constructed from relatively few topics. Alpha > 1 assumes that each is constructed from many topics.\nIf you aren\'t sure choose the convention: 50/k.') 
+,alpha=stop('alpha: The alpha parameter must be greater than 0. Alpha < 1 assumes that each document is constructed from relatively few topics. Alpha > 1 assumes that each is constructed from many topics.\nIf you aren\'t sure choose the convention: 50/k.')
 ,sample.docs=NULL # put a number here if you want to take a random subset of your docs
 )
 {
@@ -111,7 +113,7 @@ result <- list()
 for(idx in 1:nrow(data97)) {
   toks <- unlist(strsplit(data97[idx,'article_text'], ' '))
   curhits <- which(toks %in% keys)
-  if(length(curhits) > 0) {    
+  if(length(curhits) > 0) {
     # We got something from keys! append to each of our (eventual) data.frame columns
     for(hit in curhits) {
       #result <- append(result, list(c(toks[hit-1], toks[hit], toks[hit+1], toks[hit+2], toks[hit+3])))
@@ -136,7 +138,7 @@ res.df <- data.frame(idx=resultids, article_id=artcl_id, city=cities, state=stat
 #res.df$neighborhood
 #res.df[26,]
 
-write.csv(res.df, 'happiness2.csv') #this csv has all we need 
+write.csv(res.df, 'happiness2.csv') #this csv has all we need
 }
 
 ###4. Machine Learning wrapper (with Juan)

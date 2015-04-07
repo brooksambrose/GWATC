@@ -3,13 +3,13 @@
 # When loading a function from source, we can take advantage of development tools and syntax checks.
 
 do.you.want.to.clear.memory="nope"
-if(grepl("[Yy]",do.you.want.to.clear.memory)) rm(list=ls()) 
+if(grepl("[Yy]",do.you.want.to.clear.memory)) rm(list=ls())
 
 Would.you.like.to.lineprof="nope"
 if(grepl("[Yy]",Would.you.like.to.lineprof)){
 	require(lineprof) # optional: a Hadley Wickam tool for line by line visualization of a function's memory and running time
 	source("CTAWG.R")
-	sh<-lineprof(findings<-fulltext2lda(in.dir="./brooks-in",out.dir="./brooks-out",k=3,alpha=.5,sample.docs=5))
+	sh<-lineprof(findings<-fulltext2lda(in.dir="/in",out.dir="/out",k=3,alpha=.5,sample.docs=5))
 	shine(sh)
 }
 
