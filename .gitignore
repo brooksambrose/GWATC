@@ -7,3 +7,5 @@ api
 source/inspector.html
 /in
 /out
+*.RData
+/vis

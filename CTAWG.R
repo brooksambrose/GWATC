@@ -33,17 +33,20 @@
 
 
 fulltext2lda<-function(
-in.dir=stop('in.dir: You need to specify a path to a file folder containing the text files (i.e. documents) that comprise your corpus. For example:\nin.dir=\'MyDocuments/ProjectFiles/TextDocuments\'.')
-,out.dir=stop('out.dir: You need to specify a path to a file folder where you want your output files to be stored once text processing is completed. For example out.dir=\'MyDocuments/ProjectFiles/Output\'.')
-,k=stop('k: Specify the number of topics you want LDA to model.')
-,alpha=stop('alpha: The alpha parameter must be greater than 0. Alpha < 1 assumes that each document is constructed from relatively few topics. Alpha > 1 assumes that each is constructed from many topics.\nIf you aren\'t sure choose the convention: 50/k.')
+in.dir=stop('in.dir: You need to specify a path to a file folder containing the text files (i.e. documents) that comprise your corpus. For example:\nin.dir=\'MyDocuments/ProjectFiles/TextDocuments\'.\n')
+,out.dir=stop('out.dir: You need to specify a path to a file folder where you want your output files to be stored once text processing is completed. For example out.dir=\'MyDocuments/ProjectFiles/Output\'.\n')
+,k=stop('k: Specify the number of topics you want LDA to model.\n')
+,alpha=cat('alpha: The alpha parameter must be greater than 0.\nAlpha < 1 assumes that each document is constructed from relatively few topics.\nAlpha > 1 assumes that each is constructed from many topics.\nIf you aren\'t sure choose the convention: 50/k, which will also be the default if you specify nothing.\n')
 ,sample.docs=NULL # put a number here if you want to take a random subset of your docs
+,visualize.results=F
 )
 {
 # Check package requirements and arguments
 require(tm)
 require(SnowballC)
 require(stm)
+
+if(is.null(alpha)) alpha<-50/k
 
 ### 1. Preprocessing functions in base R ###
 
@@ -63,23 +66,46 @@ docs<-lapply(docs,FUN=stemDocument,language='english')
 ## here we end with a list of untabulated character vectors in original document order. It is possible to go in the 'bag of words' direction, to create ngrams, or to do grammatical parsing...maybe (is stemming a problem here?)
 
 ### 2. LDA wrapper (stm package)
-vocab<-sort(unique(unlist(docs))) # stm expects as input a list of matrices where each element of the list is a document and where the first row of each matrix is the index of a word and the second row is the count of the word
-stm.docs<-lapply(docs,FUN=function(x) {
-	x<-factor(x,levels=vocab)
-	x<-matrix(rbind(1:length(vocab),table(x)),nrow=2)
-	x # this is functionally a document term matrix if you were to run do.call(rbind,x). It includes the zero values, but behavior for this is not described in stm.
-})
+vocab<-sort(unique(unlist(docs))) # stm expects as input a list of matrices where each element of the list is a document and where the first row of each matrix is the index of a word and the second row is the count of the word. This is a more memory efficient form since zeros are not stored.
+stm.docs<-list()
+for(i in names(docs)){
+	t<-table(docs[[i]])
+	stm.docs[[i]]<-rbind(vocab.index=which(vocab%in%names(t)),frequency=t)
+}
+
 pre2stm<-list()
-pre2stm[["model"]]<-stm(documents=stm.docs,vocab=vocab,K=k,control=list(alpha=alpha))
-#pre2stm[["doc.top"]]<-pre2stm$model$theta
-#pre2stm[["wor.top"]]<-pre2stm$model$theta
+pre2stm$model<-stm(documents=stm.docs,vocab=vocab,K=k,control=list(alpha=alpha))
+pre2stm$top.word.phi.beta<-sapply(data.frame(pre2stm$model$beta$logbeta),function(x) sapply(x,function(y) ifelse(is.infinite(y),.Machine$double.eps,exp(y)))) # called beta by stm, epsilon closest thing to zero
+colnames(pre2stm$top.word.phi.beta)<-pre2stm$model$vocab
+pre2stm$doc.top.theta<-pre2stm$model$theta
+rownames(pre2stm$doc.top.theta)<-names(docs)
+pre2stm$doc.length<-sapply(docs,length)
+pre2stm$vocab<-pre2stm$model$vocab
+tn<-table(unlist(docs))
+pre2stm$term.frequency<-as.integer(tn)
+names(pre2stm$term.frequency)<-names(tn)
+
 save(pre2stm,file=sub(paste(rep(.Platform$file.sep,2),collapse=""),.Platform$file.sep,paste(out.dir,paste("stm-model-k",k,"-alpha",round(alpha,3),".RData",sep=""),sep=.Platform$file.sep)))
+
 pre2stm
 }
 
-
-
-
+viz<-function(pre2stm){
+	# from http://cpsievert.github.io/LDAvis/newsgroup/newsgroup.html
+	# http://nlp.stanford.edu/events/illvi2014/papers/sievert-illvi2014.pdf
+	# http://glimmer.rstudio.com/cpsievert/xkcd/
+	require(LDAvis)
+	require(servr)
+	json <- createJSON(
+		phi = pre2stm$top.word.phi.beta
+		,theta = pre2stm$doc.top.theta
+		,vocab = pre2stm$vocab
+		,doc.length = pre2stm$doc.length
+		,term.frequency = pre2stm$term.frequency
+	)
+	save(json,file='viz.RData')
+	serVis(json, out.dir = "vis", open.browser = T)
+}
 
 ###3. Dictionary functions using base R
 # arguments are in.dir, keys(as in keywords), n(for functions seeking nearby words), and out.dir.   ##??Do we want to add meta-data to make it easy for people to make crosstabs of the counts?? If so, we need to add arguments specifying the meta data columns of an output file.
