@@ -16,7 +16,7 @@ proquest<-fulltext2lda(
 	#,sample.docs=50
 	#,alpha=.5
 )
-viz(proquest)
+stmviz(proquest)
 
 
 if(grepl("[Yy]",Would.you.like.to.lineprof)){
